@@ -33,12 +33,54 @@ function generateNonce(): string {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
+// Storage keys for persisting auth state
+const AUTH_TOKEN_KEY = 'farcaster_auth_token';
+const AUTH_USER_DATA_KEY = 'farcaster_auth_user_data';
+
+// Load persisted auth state from storage
+function loadAuthState(): AuthState {
+  if (typeof window === 'undefined') {
+    return { token: null, userData: null, isLoading: false };
+  }
+  
+  try {
+    const token = sessionStorage.getItem(AUTH_TOKEN_KEY);
+    const userDataStr = sessionStorage.getItem(AUTH_USER_DATA_KEY);
+    const userData = userDataStr ? JSON.parse(userDataStr) : null;
+    
+    return {
+      token,
+      userData,
+      isLoading: false,
+    };
+  } catch {
+    return { token: null, userData: null, isLoading: false };
+  }
+}
+
+// Save auth state to storage
+function saveAuthState(token: string | null, userData: { fid?: number; address?: string } | null) {
+  if (typeof window === 'undefined') return;
+  
+  try {
+    if (token) {
+      sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+    } else {
+      sessionStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+    
+    if (userData) {
+      sessionStorage.setItem(AUTH_USER_DATA_KEY, JSON.stringify(userData));
+    } else {
+      sessionStorage.removeItem(AUTH_USER_DATA_KEY);
+    }
+  } catch (error) {
+    console.warn('Failed to save auth state:', error);
+  }
+}
+
 export function useQuickAuth() {
-  const [authState, setAuthState] = useState<AuthState>({
-    token: null,
-    userData: null,
-    isLoading: false,
-  });
+  const [authState, setAuthState] = useState<AuthState>(loadAuthState);
 
   const isMiniapp = isFarcasterMiniapp();
   const { address, isConnected } = useAccount();
@@ -53,6 +95,11 @@ export function useQuickAuth() {
   useEffect(() => {
     addressRef.current = address;
   }, [address]);
+  
+  // Update persisted state when authState changes
+  useEffect(() => {
+    saveAuthState(authState.token, authState.userData);
+  }, [authState.token, authState.userData]);
 
   async function signIn() {
     try {
@@ -89,14 +136,17 @@ export function useQuickAuth() {
 
           const data = await response.json();
           
-          setAuthState({
+          const newAuthState = {
             token: signature, // Use signature as token
             userData: {
               fid: data.fid,
               address: address || data.address || null,
             },
             isLoading: false,
-          });
+          };
+          
+          setAuthState(newAuthState);
+          saveAuthState(newAuthState.token, newAuthState.userData);
           return; // Success, exit early
         } catch (miniappError) {
           // If miniapp auth fails, fall back to AppKit
@@ -160,11 +210,14 @@ export function useQuickAuth() {
       const data = await response.json();
       const token = data.token || signature; // Use signature as token if backend doesn't provide one
 
-      setAuthState({
+      const newAuthState = {
         token,
         userData: { address: currentAddress, ...data },
         isLoading: false,
-      });
+      };
+      
+      setAuthState(newAuthState);
+      saveAuthState(newAuthState.token, newAuthState.userData);
     } catch (error) {
       console.error('Authentication failed:', error);
       setAuthState((prev) => ({ ...prev, isLoading: false }));
@@ -172,9 +225,14 @@ export function useQuickAuth() {
     }
   }
 
-  // Auto-sign in when in miniapp environment
+  // Auto-sign in when in miniapp environment (only once per session)
   useEffect(() => {
-    if (isMiniapp && !hasAutoSignedIn.current && !authState.token) {
+    // Only auto-sign-in if:
+    // 1. We're in a miniapp
+    // 2. We haven't already attempted auto-sign-in
+    // 3. We don't have a token (not authenticated)
+    // 4. We're not currently loading
+    if (isMiniapp && !hasAutoSignedIn.current && !authState.token && !authState.isLoading) {
       hasAutoSignedIn.current = true;
       signIn().catch((error) => {
         console.error('Auto sign-in failed:', error);
@@ -182,17 +240,19 @@ export function useQuickAuth() {
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMiniapp, authState.token]);
+  }, [isMiniapp]); // Only depend on isMiniapp, not authState.token to avoid re-triggering
 
   function signOut() {
     if (!isMiniapp && isConnected) {
       disconnect();
     }
+    hasAutoSignedIn.current = false; // Reset so user can sign in again if needed
     setAuthState({
       token: null,
       userData: null,
       isLoading: false,
     });
+    saveAuthState(null, null); // Clear persisted state
   }
 
   return {
