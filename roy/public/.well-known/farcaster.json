@@ -1,0 +1,31 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "frame": {
+    "version": "1",
+    "name": "Roy",
+    "homeUrl": "https://devroyale.xyz",
+    "iconUrl": "https://devroyale.xyz/icon.png",
+    "splashImageUrl": "https://devroyale.xyz/splash.png",
+    "splashBackgroundColor": "#000000",
+    "webhookUrl": "https://devroyale.xyz/api/webhook",
+    "subtitle": "Demo for Dev Royale CLI",
+    "description": "Demo for Dev Royale CLI",
+    "screenshotUrls": [],
+    "primaryCategory": "utility",
+    "tags": [
+      "utility",
+      "miniapp",
+      "base"
+    ],
+    "heroImageUrl": "https://devroyale.xyz/og.png",
+    "tagline": "Demo for Dev Royale CLI",
+    "ogTitle": "Roy",
+    "ogDescription": "Demo for Dev Royale CLI",
+    "ogImageUrl": "https://devroyale.xyz/og.png",
+    "noindex": false
+  }
+}
