@@ -4,10 +4,27 @@ import { useQuickAuth } from '@/hooks/useQuickAuth';
 import { BottomNav } from '@/components/BottomNav';
 import { BrandFooter } from '@/components/BrandFooter';
 import { Zap, Activity, Sparkles, Shield, ArrowRight, Bell, Wallet, CheckCircle2 } from 'lucide-react';
+import { sdk } from '@farcaster/miniapp-sdk';
+
+// Detect if we're in Farcaster miniapp environment
+function isFarcasterMiniapp(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    return (
+      typeof sdk !== 'undefined' && 
+      sdk !== null && 
+      sdk.actions &&
+      typeof sdk.actions.signIn === 'function'
+    );
+  } catch {
+    return false;
+  }
+}
 
 export default function Home() {
   const { token, userData, signIn, signOut, isAuthenticated, isLoading } = useQuickAuth();
   const displayName = userData?.fid ? 'Explorer #' + userData.fid : 'Friend';
+  const isMiniapp = isFarcasterMiniapp();
 
   const containerClasses = 'min-h-screen bg-[#0A0B0D] text-white';
   const shellClasses = 'max-w-[430px] mx-auto px-4 py-8 pb-32 space-y-6';
@@ -20,7 +37,29 @@ export default function Home() {
   const badgeClasses =
     'inline-flex items-center gap-1 px-3 py-1 rounded-full bg-[#0052FF]/10 text-[#00D4FF] text-[11px] font-semibold tracking-wide border border-[#0052FF]/25';
 
+  // In miniapp, don't show connect wallet UI - authentication happens automatically
+  // Show loading state while authenticating in miniapp
   if (!isAuthenticated) {
+    // In miniapp, show loading state instead of connect wallet button
+    if (isMiniapp && isLoading) {
+      return (
+        <>
+          <main className={containerClasses}>
+            <div className="flex min-h-screen items-center justify-center px-4 pb-32">
+              <div className="w-full max-w-[380px] space-y-8 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0052FF]/15 border border-[#0052FF]/30">
+                  <Zap className="h-8 w-8 text-[#00D4FF] animate-pulse" />
+                </div>
+                <p className="text-sm text-[#A0A0A0]">Connecting...</p>
+              </div>
+            </div>
+          </main>
+          <BottomNav />
+        </>
+      );
+    }
+    
+    // Web browser - show connect wallet UI
     return (
       <>
         <main className={containerClasses}>
@@ -33,7 +72,7 @@ export default function Home() {
                     Welcome to Roy
                   </span>
                 </h1>
-                <p className="text-sm text-[#A0A0A0]">Demo for Dev Royale CLI</p>
+                <p className="text-sm text-[#A0A0A0]">Demo of Dev Royale CLI</p>
               </div>
               <div className={`${cardClasses} text-center space-y-6`}>
                 <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0052FF]/15 border border-[#0052FF]/30">
@@ -71,7 +110,7 @@ export default function Home() {
                     Hey {displayName}
                   </span>
                 </h1>
-                <p className="text-sm text-[#A0A0A0]">Demo for Dev Royale CLI</p>
+                <p className="text-sm text-[#A0A0A0]">Demo of Dev Royale CLI</p>
               </div>
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-[#0052FF]/40 bg-[#0052FF]/15 text-xl font-semibold">
                 {displayName.charAt(0).toUpperCase()}

@@ -15,7 +15,6 @@ const aliasEntries = {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  allowedDevOrigins: ['big-ends-bet.loca.lt'],
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,

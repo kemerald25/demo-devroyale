@@ -1,6 +1,6 @@
 # Roy
 
-Demo for Dev Royale CLI
+Demo of Dev Royale CLI
 
 ## Getting Started
 

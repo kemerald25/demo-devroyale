@@ -12,8 +12,8 @@
     "splashImageUrl": "https://devroyale.xyz/splash.png",
     "splashBackgroundColor": "#000000",
     "webhookUrl": "https://devroyale.xyz/api/webhook",
-    "subtitle": "Demo for Dev Royale CLI",
-    "description": "Demo for Dev Royale CLI",
+    "subtitle": "Demo of Dev Royale CLI",
+    "description": "Demo of Dev Royale CLI",
     "screenshotUrls": [],
     "primaryCategory": "utility",
     "tags": [
@@ -22,9 +22,9 @@
       "base"
     ],
     "heroImageUrl": "https://devroyale.xyz/og.png",
-    "tagline": "Demo for Dev Royale CLI",
+    "tagline": "Demo of Dev Royale CLI",
     "ogTitle": "Roy",
-    "ogDescription": "Demo for Dev Royale CLI",
+    "ogDescription": "Demo of Dev Royale CLI",
     "ogImageUrl": "https://devroyale.xyz/og.png",
     "noindex": false
   }

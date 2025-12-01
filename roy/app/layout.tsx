@@ -6,7 +6,7 @@ import { MiniappReady } from '@/components/MiniappReady';
 
 export const metadata = {
   title: 'Roy',
-  description: 'Demo for Dev Royale CLI',
+  description: 'Demo of Dev Royale CLI',
 };
 
 export default async function RootLayout({

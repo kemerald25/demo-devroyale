@@ -33,7 +33,7 @@ export default function Explore() {
                 Explore Roy
               </span>
             </h1>
-            <p className="text-sm text-[#A0A0A0]">Demo for Dev Royale CLI</p>
+            <p className="text-sm text-[#A0A0A0]">Demo of Dev Royale CLI</p>
           </header>
 
           <section className="grid grid-cols-2 gap-4">
